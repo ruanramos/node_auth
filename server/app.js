@@ -1,5 +1,5 @@
 require("dotenv").config();
-require("./server/config/database").connect();
+require("./config/database").connect();
 const express = require("express");
 const User = require("./model/user");
 const bcrypt = require("bcryptjs");

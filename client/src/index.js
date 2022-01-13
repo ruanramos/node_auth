@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import App from './App';
 import Login from './components/Login';
-import Nav from './components/Nav';
 import Register from './components/Register';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
@@ -10,11 +10,11 @@ import reportWebVitals from './reportWebVitals';
 ReactDOM.render(
   <React.StrictMode>
     <BrowserRouter>
-      <Nav />
       <Routes>
-        <Route path="/" element={<div></div>} />
-        <Route path="login" element={<Login />} />
-        <Route path="register" element={<Register />} />
+        <Route path="/" element={<App />} >
+          <Route path="login" element={<Login />} />
+          <Route path="register" element={<Register />} />
+        </Route>
       </Routes>
 
     </BrowserRouter>
