@@ -48,11 +48,11 @@ export default function Register() {
             mode: 'cors'
         });
 
-        console.log(res);
-        // if (res.body.token) {
-        //     setToken(res.body.token);
-        // }
-        // console.log(token)
+        const realRes = await res.json();
+
+        if (res.ok) {
+            document.getElementById('feedback').textContent = 'Registered new user: ' + realRes['first_name'];
+        }
 
     }
 
@@ -76,6 +76,8 @@ export default function Register() {
                 <br></br>
                 <button type="submit" value="Submit" >Register</button>
             </form>
+
+            <p id="feedback"></p>
         </>
     )
 }

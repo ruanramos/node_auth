@@ -3,7 +3,7 @@ require("./config/database").connect();
 const express = require("express");
 const User = require("./model/user");
 const bcrypt = require("bcryptjs");
-const jwt = require("jsonWebToken");
+const jwt = require("jsonwebtoken");
 const auth = require("./middleware/auth");
 const cors = require("cors");
 
@@ -13,6 +13,7 @@ app.use(express.json());
 
 app.options('/login', cors());
 app.options('/register', cors());
+app.options('/users', cors());
 
 // Register
 app.post("/register", cors(), async (req, res) => {
@@ -22,14 +23,17 @@ app.post("/register", cors(), async (req, res) => {
 
         // validate input
         if (!(email && password && firstName && lastName)) {
-            res.status(400).send("All input is required");
+            res.statusCode = 400;
+            res.send({ message: "All input is required" });
+
         }
         // check if user already exist
         // Validate if user exist in our database
         const oldUser = await User.findOne({ email });
 
         if (oldUser) {
-            return res.status(409).send("User Already Exist. Please Login");
+            res.statusCode = 409;
+            res.send({ message: "User already existsAlready Exist. Please Login" });
         }
 
         //Encrypt user password
@@ -51,12 +55,16 @@ app.post("/register", cors(), async (req, res) => {
                 expiresIn: "5h",
             }
         );
-        
+
         // save user token
         user.token = token;
 
         // return new user
-        res.status(201).json(user);
+        res.statusCode = 201;
+        res.setHeader("x-auth-token", token);
+        res.send(user);
+
+
 
 
     } catch (err) {
@@ -73,11 +81,11 @@ app.post("/login", cors(), async (req, res) => {
 
         // Validate user input
         if (!(email && password)) {
-            res.status(400).send("All input is required");
+            res.statusCode = 400;
+            res.send({ message: "All input is required" });
         }
         // Validate if user exist in our database
-        let user = await User.findOne({ email });
-        console.log(user);
+        let user = await User.findOne({ email }).lean();
 
         if (user && (await bcrypt.compare(password, user.password))) {
             // Create token
@@ -92,26 +100,35 @@ app.post("/login", cors(), async (req, res) => {
             // save user token
             user.token = token;
 
-            console.log(user.token);
             console.log(user);
 
-            const userT = {user, token: token};
-            console.log(userT);
             // user
-            return res.status(200).json(userT);
+            res.statusCode = 201;
+            res.setHeader("x-auth-token", token);
+            res.send(user);
+
         }
 
-        return res.status(500).send("User not found");
+        res.statusCode = 500;
+        return res.send({ message: "User not found" });
+
 
     } catch (err) {
         console.log(err);
-        res.status(500).send("Error occurred");
+        res.statusCode = 500;
+        res.send({ message: "All input is required" });
     }
 
 });
 
 app.post("/welcome", auth, (req, res) => {
-    res.status(200).send({body: "Welcome to FreeCodeCamp 🙌"});
+    res.status(200).send({ body: "Welcome to FreeCodeCamp 🙌" });
+});
+
+app.get("/users", cors(), auth, async (req, res) => {
+    const users = await User.find().lean();
+
+    res.status(200).json(users);
 });
 
 

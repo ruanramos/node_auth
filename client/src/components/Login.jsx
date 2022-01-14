@@ -4,7 +4,6 @@ export default function Login() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [token, setToken] = useState(null);
 
   const handleChange = (e) => {
     if (e.target.name === 'email') {
@@ -28,13 +27,17 @@ export default function Login() {
       }),
       mode: 'cors'
     });
+    const realRes = await res.json();
 
-    console.log(res);
-    if (res.body.token) {
-      setToken(res.body.token);
+    if (res.ok) {
+      sessionStorage.setItem('token', realRes.token);
+
+      setEmail('');
+      setPassword('');
+      document.getElementById('feedback').textContent = 'Welcome, ' + realRes['first_name'];
+      return;
     }
-    console.log(token)
-
+    document.getElementById('feedback').textContent = 'Welcome, ' + realRes['first_name'];
   }
 
   return (
@@ -49,6 +52,8 @@ export default function Login() {
         <br></br>
         <button type="submit" value="Submit" >Login!</button>
       </form>
+
+      <p id="feedback"></p>
     </>
   )
 }
